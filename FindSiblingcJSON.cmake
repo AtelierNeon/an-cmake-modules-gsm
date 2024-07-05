@@ -1,0 +1,17 @@
+if (EXISTS "${PROJECT_SOURCE_DIR}/../cjson/")
+  message (STATUS "Sibling cJSON found.")
+  set (CJSON_FOUND TRUE)
+  set (CJSON_INCLUDE_DIRS
+    "${PROJECT_SOURCE_DIR}/../cjson/../"
+    "${PROJECT_BINARY_DIR}/../cjson/")
+  set (CJSON_LIBRARY cjson)
+  if (CJSON_USE_STATIC_LIBS)
+    message (STATUS "Using static sibling cJSON.")
+    set (CJSON_LIBRARY cjson-static)
+  else ()
+    message (STATUS "Using shared sibling cJSON.")
+  endif ()
+  set (CJSON_LIBRARIES ${CJSON_LIBRARY})
+else ()
+  message (STATUS "Sibling cJSON NOT found.")
+endif ()
