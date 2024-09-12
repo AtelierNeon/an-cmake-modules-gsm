@@ -73,6 +73,15 @@ else ()
   message (STATUS "Sibling OpenSSL NOT found.")
 endif ()
 
+if (OPENSSL_FOUND)
+  if (NOT TARGET OpenSSL::Crypto AND TARGET ${OPENSSL_CRYPTO_LIBRARY})
+    add_library(OpenSSL::Crypto ALIAS ${OPENSSL_CRYPTO_LIBRARY})
+  endif ()
+  if (NOT TARGET OpenSSL::SSL AND TARGET ${OPENSSL_SSL_LIBRARY})
+    add_library(OpenSSL::SSL ALIAS ${OPENSSL_SSL_LIBRARY})
+  endif ()
+endif ()
+
 ## Cleanup
 unset (_OPENSSL_1_1_1_FOUND)
 unset (_OPENSSL_3_0_FOUND)
