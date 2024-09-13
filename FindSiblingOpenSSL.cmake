@@ -82,6 +82,10 @@ if (OPENSSL_FOUND)
   endif ()
 endif ()
 
+if (OPENSSL_INCLUDE_DIRS AND NOT OPENSSL_INCLUDE_DIR)
+  set (OPENSSL_INCLUDE_DIR ${OPENSSL_INCLUDE_DIRS})
+endif()
+
 ## Cleanup
 unset (_OPENSSL_1_1_1_FOUND)
 unset (_OPENSSL_3_0_FOUND)
