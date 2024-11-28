@@ -6,14 +6,28 @@ if (NOT CCACHE_SHIM_EXECUTABLE_PATH)
 else ()
   ## Example ${ccache_version_output}:
   #
-  # C:\>ccache --print-version
-  # 4.10.2
-  execute_process (COMMAND ${CCACHE_SHIM_EXECUTABLE_PATH} --print-version
+  # C:\>ccache --version
+  # ccache version 4.10.2
+  # Features: avx2 file-storage http-storage redis+unix-storage redis-storage
+  #
+  # Copyright (C) 2002-2007 Andrew Tridgell
+  # Copyright (C) 2009-2024 Joel Rosdahl and other contributors
+  #
+  # See <https://ccache.dev/credits.html> for a complete list of contributors.
+  #
+  # This program is free software; you can redistribute it and/or modify it under
+  # the terms of the GNU General Public License as published by the Free Software
+  # Foundation; either version 3 of the License, or (at your option) any later
+  # version.
+  execute_process (COMMAND ${CCACHE_SHIM_EXECUTABLE_PATH} --version
       OUTPUT_VARIABLE ccache_version_output
       RESULT_VARIABLE ccache_version_exit_code
       ERROR_QUIET
       OUTPUT_STRIP_TRAILING_WHITESPACE)
   if ("${ccache_version_exit_code}" STREQUAL "0")
+    string (REGEX MATCH "ccache\ version\ ([0-9])+.([0-9])+.([0-9])+\n" ccache_version_output "${ccache_version_output}")
+    string (REGEX REPLACE "\n$" "" ccache_version_output "${ccache_version_output}")
+    string (REPLACE "ccache\ version\ " "" ccache_version_output ${ccache_version_output})
     set (CCACHE_EXECUTABLE_VERSION ${ccache_version_output})
   else ()
     set (CCACHE_EXECUTABLE_VERSION "UNKNOWN_VERSION")
@@ -42,7 +56,7 @@ else ()
     if ("${ccache_path_exit_code}" STREQUAL "-1")
       string (REGEX MATCH "path\ to\ executable:.*exe\n" ccache_path_output "${ccache_path_output}")
       string (REGEX REPLACE "\n$" "" ccache_path_output "${ccache_path_output}")
-      string (REPLACE "path\ to\ executable: " "" ccache_path_output ${ccache_path_output})
+      string (REPLACE "path\ to\ executable:\ " "" ccache_path_output ${ccache_path_output})
       set (CCACHE_EXECUTABLE_PATH ${ccache_path_output})
     else ()
       set (CCACHE_EXECUTABLE_PATH ${CCACHE_SHIM_EXECUTABLE_PATH})
