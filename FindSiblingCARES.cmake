@@ -15,3 +15,7 @@ if (EXISTS "${PROJECT_SOURCE_DIR}/../c-ares/include/")
 else ()
   message (STATUS "Sibling c-ares NOT found.")
 endif ()
+
+if (CARES_INCLUDE_DIRS AND NOT CARES_INCLUDE_DIR)
+  set (CARES_INCLUDE_DIR ${CARES_INCLUDE_DIRS})
+endif ()
