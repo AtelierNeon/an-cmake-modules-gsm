@@ -1,0 +1,21 @@
+if (EXISTS "${PROJECT_SOURCE_DIR}/../nghttp2/")
+  message (STATUS "Sibling NGHTTP2 found.")
+  set (NGHTTP2_FOUND TRUE)
+  set (NGHTTP2_INCLUDE_DIRS
+    "${PROJECT_SOURCE_DIR}/../nghttp2/lib/includes/"
+    "${PROJECT_BINARY_DIR}/../nghttp2/lib/includes/")
+  set (NGHTTP2_LIBRARY nghttp2)
+  if (NGHTTP2_USE_STATIC_LIBS)
+    message (STATUS "Using static sibling NGHTTP2.")
+    set (NGHTTP2_LIBRARY nghttp2_static)
+  else ()
+    message (STATUS "Using shared sibling NGHTTP2.")
+  endif ()
+  set (NGHTTP2_LIBRARIES ${NGHTTP2_LIBRARY})
+else ()
+  message (STATUS "Sibling NGHTTP2 NOT found.")
+endif ()
+
+if (NGHTTP2_INCLUDE_DIRS AND NOT NGHTTP_INCLUDE_DIR)
+  set (NGHTTP_INCLUDE_DIR ${NGHTTP2_INCLUDE_DIRS})
+endif ()
