@@ -1,0 +1,26 @@
+if (EXISTS "${PROJECT_SOURCE_DIR}/../re2/")
+  message (STATUS "Sibling RE2 found.")
+  set (RE2_FOUND TRUE)
+  set (RE2_INCLUDE_DIRS
+    "${PROJECT_SOURCE_DIR}/../re2/")
+  set (RE2_LIBRARY re2)
+  set (RE2_LIBRARIES ${RE2_LIBRARY})
+else ()
+  message (STATUS "Sibling RE2 NOT found.")
+endif ()
+
+if (RE2_FOUND)
+  if (NOT TARGET re2::re2)
+    if (NOT TARGET ${RE2_LIBRARY})
+      message (WARNING "Target ${RE2_LIBRARY} is NOT FOUND. You should include RE2 as sibling library before ${PROJECT_NAME}.")
+    else ()
+      set_target_properties(${RE2_LIBRARY} PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${RE2_INCLUDE_DIRS}")
+      add_library (re2::re2 ALIAS ${RE2_LIBRARY})
+    endif ()
+  endif ()
+endif ()
+
+if (RE2_INCLUDE_DIRS AND NOT RE2_INCLUDE_DIR)
+  set (RE2_INCLUDE_DIR ${RE2_INCLUDE_DIRS})
+endif ()
