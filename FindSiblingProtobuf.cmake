@@ -1,8 +1,7 @@
-cmake_policy(PUSH)
-cmake_policy(SET CMP0159 NEW) # file(STRINGS) with REGEX updates CMAKE_MATCH_<n>
-
 function(protobuf_generate)
-  set(_options APPEND_PATH DESCRIPTORS)
+  include(CMakeParseArguments)
+
+  set(_options APPEND_PATH)
   set(_singleargs LANGUAGE OUT_VAR EXPORT_MACRO PROTOC_OUT_DIR PLUGIN PLUGIN_OPTIONS DEPENDENCIES)
   if(COMMAND target_sources)
     list(APPEND _singleargs TARGET)
@@ -98,44 +97,46 @@ function(protobuf_generate)
     endif()
   endforeach()
 
-  if(NOT protobuf_generate_APPEND_PATH)
-    list(APPEND _protobuf_include_path -I ${CMAKE_CURRENT_SOURCE_DIR})
+  if(NOT _protobuf_include_path)
+    set(_protobuf_include_path -I ${CMAKE_CURRENT_SOURCE_DIR})
   endif()
 
   set(_generated_srcs_all)
   foreach(_proto ${protobuf_generate_PROTOS})
     get_filename_component(_abs_file ${_proto} ABSOLUTE)
     get_filename_component(_abs_dir ${_abs_file} DIRECTORY)
-    get_filename_component(_basename ${_proto} NAME_WLE)
-    file(RELATIVE_PATH _rel_dir ${CMAKE_CURRENT_SOURCE_DIR} ${_abs_dir})
 
-    set(_possible_rel_dir)
-    if (NOT protobuf_generate_APPEND_PATH)
-      foreach(DIR ${_protobuf_include_path})
-        if(NOT DIR STREQUAL "-I")
-          file(RELATIVE_PATH _rel_dir ${DIR} ${_abs_dir})
-          if(_rel_dir STREQUAL _abs_dir)
-            continue()
-          endif()
-          string(FIND "${_rel_dir}" "../" _is_in_parent_folder)
-          if (NOT ${_is_in_parent_folder} EQUAL 0)
-            break()
-          endif()
+    get_filename_component(_file_full_name ${_proto} NAME)
+    string(FIND "${_file_full_name}" "." _file_last_ext_pos REVERSE)
+    string(SUBSTRING "${_file_full_name}" 0 ${_file_last_ext_pos} _basename)
+
+    set(_suitable_include_found FALSE)
+    foreach(DIR ${_protobuf_include_path})
+      if(NOT DIR STREQUAL "-I")
+        file(RELATIVE_PATH _rel_dir ${DIR} ${_abs_dir})
+        if(_rel_dir STREQUAL _abs_dir)
+          # When there is no relative path from DIR to _abs_dir (e.g. due to
+          # different drive letters on Windows), _rel_dir is equal to _abs_dir.
+          # Therefore, DIR is not a suitable include path and must be skipped.
+          continue()
         endif()
-      endforeach()
-      set(_possible_rel_dir ${_rel_dir}/)
+        string(FIND "${_rel_dir}" "../" _is_in_parent_folder)
+        if (NOT ${_is_in_parent_folder} EQUAL 0)
+          set(_suitable_include_found TRUE)
+          break()
+        endif()
+      endif()
+    endforeach()
+
+    if(NOT _suitable_include_found)
+      message(SEND_ERROR "Error: protobuf_generate could not find any correct proto include directory.")
+      return()
     endif()
 
     set(_generated_srcs)
     foreach(_ext ${protobuf_generate_GENERATE_EXTENSIONS})
-      list(APPEND _generated_srcs "${protobuf_generate_PROTOC_OUT_DIR}/${_possible_rel_dir}${_basename}${_ext}")
+      list(APPEND _generated_srcs "${protobuf_generate_PROTOC_OUT_DIR}/${_rel_dir}/${_basename}${_ext}")
     endforeach()
-
-    if(protobuf_generate_DESCRIPTORS AND protobuf_generate_LANGUAGE STREQUAL cpp)
-      set(_descriptor_file "${CMAKE_CURRENT_BINARY_DIR}/${_basename}.desc")
-      set(_dll_desc_out "--descriptor_set_out=${_descriptor_file}")
-      list(APPEND _generated_srcs ${_descriptor_file})
-    endif()
     list(APPEND _generated_srcs_all ${_generated_srcs})
 
     set(_comment "Running ${protobuf_generate_LANGUAGE} protocol buffer compiler on ${_proto}")
@@ -149,8 +150,8 @@ function(protobuf_generate)
     add_custom_command(
       OUTPUT ${_generated_srcs}
       COMMAND protobuf::protoc
-      ARGS ${protobuf_generate_PROTOC_OPTIONS} --${protobuf_generate_LANGUAGE}_out ${_plugin_options}:${protobuf_generate_PROTOC_OUT_DIR} ${_plugin} ${_dll_desc_out} ${_protobuf_include_path} ${_abs_file}
-      DEPENDS ${_abs_file} protobuf::protoc ${protobuf_generate_DEPENDENCIES}
+      ARGS ${protobuf_generate_PROTOC_OPTIONS} --${protobuf_generate_LANGUAGE}_out ${_plugin_options}:${protobuf_generate_PROTOC_OUT_DIR} ${_plugin} ${_protobuf_include_path} ${_abs_file}
+      DEPENDS ${_abs_file} ${protobuf_PROTOC_EXE} ${protobuf_generate_DEPENDENCIES}
       COMMENT ${_comment}
       VERBATIM )
   endforeach()
@@ -162,6 +163,7 @@ function(protobuf_generate)
   if(protobuf_generate_TARGET)
     target_sources(${protobuf_generate_TARGET} PRIVATE ${_generated_srcs_all})
   endif()
+
 endfunction()
 
 function(PROTOBUF_GENERATE_CPP SRCS HDRS)
@@ -558,5 +560,3 @@ foreach(Camel
     string(TOUPPER ${Camel} UPPER)
     set(${UPPER} ${${Camel}})
 endforeach()
-
-cmake_policy(POP)
