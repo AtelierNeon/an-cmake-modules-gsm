@@ -63,7 +63,7 @@ function (generate_product_exe_version outfiles)
     endif()
 
     if (NOT PRODUCT_VERSION_MAJOR OR "${PRODUCT_VERSION_MAJOR}" STREQUAL "")
-        set (PRODUCT_VERSION_MAJOR 1)
+        set (PRODUCT_VERSION_MAJOR 0)
     endif()
     if (NOT PRODUCT_VERSION_MINOR OR "${PRODUCT_VERSION_MINOR}" STREQUAL "")
         set (PRODUCT_VERSION_MINOR 0)
