@@ -4,6 +4,7 @@ if (EXISTS "${PROJECT_SOURCE_DIR}/../oatpp-swagger/src/")
   set (OATPP_SWAGGER_INCLUDE_DIRS
     "${PROJECT_SOURCE_DIR}/../oatpp-swagger/src/"
     "${PROJECT_BINARY_DIR}/../oatpp-swagger/src/")
+  set (OATPP_SWAGGER_RESOURCE_DIR "${PROJECT_SOURCE_DIR}/../oatpp-swagger/res/")
   set (OATPP_SWAGGER_LIBRARY oatpp-swagger)
   set (OATPP_SWAGGER_LIBRARIES ${OATPP_SWAGGER_LIBRARY})
 else ()
