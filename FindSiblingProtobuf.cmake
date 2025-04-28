@@ -347,7 +347,7 @@ endif ()
 
 # Find the protoc Executable
 find_program(Protobuf_PROTOC_EXECUTABLE
-    NAMES "protoc-${Protobuf_VERSION}"
+    NAMES "protoc-${PROTOBUF_WITH_PROTOC_VERSION}"
     DOC "The Google Protocol Buffers Compiler"
     PATHS ENV PATH
     NO_PACKAGE_ROOT_PATH
