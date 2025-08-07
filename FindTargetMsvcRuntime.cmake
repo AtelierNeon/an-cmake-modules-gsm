@@ -27,10 +27,13 @@ if (MSVC)
   get_filename_component(_MSVC_TOOL_LONG_VERSION ${_MSVC_COMPILER_PARENT_DIR} NAME)
 
   if ("${_MSVC_TOOL_LONG_VERSION}" MATCHES "^([0-9]+)\\.([0-9]+)")
-    # _MSVC_TOOL_VERSION example:
+    # _MSVC_RUNTIME_VERSION example:
     # 14.44
-    set (_MSVC_TOOL_VERSION "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
-    message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - VCRedist/${_MSVC_TOOL_VERSION}")
+    set (_MSVC_RUNTIME_VERSION "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
+    if (DEFINED MSVC_RUNTIME_WITH_VERSION)
+      set (_MSVC_RUNTIME_VERSION "${MSVC_RUNTIME_WITH_VERSION}")
+    endif ()
+    message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - VCRedist/${_MSVC_RUNTIME_VERSION}")
 
     # _MSVC_COMPILER_PARENT_DIR example:
     # C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC
@@ -44,7 +47,7 @@ if (MSVC)
     # C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Redist/MSVC/14.29.30133/debug_nonredist/x86
     file (GLOB _MSVC_REDIST_ROOTS
       LIST_DIRECTORIES TRUE
-      "${_MSVC_COMPILER_PARENT_DIR}/Redist/MSVC/${_MSVC_TOOL_VERSION}.*"
+      "${_MSVC_COMPILER_PARENT_DIR}/Redist/MSVC/${_MSVC_RUNTIME_VERSION}.*"
     )
     foreach (_MSVC_REDIST_ROOT ${_MSVC_REDIST_ROOTS})
       if (IS_DIRECTORY ${_MSVC_REDIST_ROOT})
@@ -55,7 +58,7 @@ if (MSVC)
       endif ()
     endforeach ()
     if (NOT _MSVC_REDIST_PATH)
-      message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - VCRedist/${_MSVC_TOOL_VERSION} - NOT FOUND")
+      message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - VCRedist/${_MSVC_RUNTIME_VERSION} - NOT FOUND")
     else ()
       # _MSVC_REDIST_FILE example:
       # C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Redist/MSVC/14.29.30133/debug_nonredist/x86/Microsoft.VC142.DebugCRT/concrt140d.dll
@@ -122,7 +125,7 @@ if (MSVC)
           endif ()
         endif ()
       endforeach ()
-      message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - VCRedist/${_MSVC_TOOL_VERSION} - FOUND")
+      message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - VCRedist/${_MSVC_RUNTIME_VERSION} - FOUND")
 
       # CMAKE_SYSTEM_VERSION example:
       # 10.0.22621
