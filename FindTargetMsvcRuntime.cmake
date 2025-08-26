@@ -1,11 +1,16 @@
 # This module is used to detect if there is a target MSVC runtime library on host machine.
 #
 # Currently MSVC v142 / v143 is supported.
-message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM}")
+if (${CMAKE_GENERATOR_PLATFORM} MATCHES [[([A-Za-z0-9]+),version=([0-9\.]+)]])
+  set (GENERATOR_PLATFORM_NAME ${CMAKE_MATCH_1})
+else ()
+  set (GENERATOR_PLATFORM_NAME ${CMAKE_GENERATOR_PLATFORM})
+endif ()
+message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME}")
 
-if ("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "x64")
+if ("${GENERATOR_PLATFORM_NAME}" STREQUAL "x64")
   set (_MSVC_PLATFORM "x64")
-elseif ("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
+elseif ("${GENERATOR_PLATFORM_NAME}" STREQUAL "Win32")
   set (_MSVC_PLATFORM "x86")
 else ()
   set (_MSVC_PLATFORM "x86")
@@ -33,7 +38,7 @@ if (MSVC)
     if (DEFINED MSVC_RUNTIME_WITH_VERSION)
       set (_MSVC_RUNTIME_VERSION "${MSVC_RUNTIME_WITH_VERSION}")
     endif ()
-    message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - VCRedist/${_MSVC_RUNTIME_VERSION}")
+    message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - VCRedist/${_MSVC_RUNTIME_VERSION}")
 
     # _MSVC_COMPILER_PARENT_DIR example:
     # C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC
@@ -58,7 +63,7 @@ if (MSVC)
       endif ()
     endforeach ()
     if (NOT _MSVC_REDIST_PATH)
-      message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - VCRedist/${_MSVC_RUNTIME_VERSION} - NOT FOUND")
+      message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - VCRedist/${_MSVC_RUNTIME_VERSION} - NOT FOUND")
     else ()
       # _MSVC_REDIST_FILE example:
       # C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Redist/MSVC/14.29.30133/debug_nonredist/x86/Microsoft.VC142.DebugCRT/concrt140d.dll
@@ -125,13 +130,13 @@ if (MSVC)
           endif ()
         endif ()
       endforeach ()
-      message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - VCRedist/${_MSVC_RUNTIME_VERSION} - FOUND")
+      message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - VCRedist/${_MSVC_RUNTIME_VERSION} - FOUND")
 
       # CMAKE_SYSTEM_VERSION example:
       # 10.0.22621
       # CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION example:
       # 10.0.26100.0
-      message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - UCRT/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+      message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - UCRT/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
       if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
         file (GLOB _UCRT_REDIST_DEBUG_ROOTS
           LIST_DIRECTORIES TRUE
@@ -155,7 +160,7 @@ if (MSVC)
       endif ()
 
       if (NOT _UCRT_REDIST_PATH)
-        message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - UCRT/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} - NOT FOUND")
+        message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - UCRT/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} - NOT FOUND")
       else ()
         # _UCRT_REDIST_FILE example:
         # C:/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x86/ucrt/ucrtbased.dll
@@ -171,15 +176,15 @@ if (MSVC)
             endif ()
           endif ()
         endforeach ()
-        message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - UCRT/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} - FOUND")
+        message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - UCRT/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} - FOUND")
 
         set (MSVCRUNTIME_FOUND TRUE)
-        message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - FOUND")
+        message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - FOUND")
       endif ()
     endif ()
   else ()
-    message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - NOT FOUND")
+    message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - NOT FOUND")
   endif ()
 else ()
-  message (STATUS "Target MSVC runtime for ${CMAKE_GENERATOR_PLATFORM} - NOT FOUND")
+  message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - NOT FOUND")
 endif ()
