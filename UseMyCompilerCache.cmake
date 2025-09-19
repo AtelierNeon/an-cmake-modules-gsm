@@ -18,7 +18,7 @@ else ()
       ERROR_QUIET
       OUTPUT_STRIP_TRAILING_WHITESPACE)
   if ("${ccache_version_exit_code}" STREQUAL "0")
-    string (REGEX MATCH "ccache\ version\ ([0-9])+.([0-9])+.([0-9])+\n" ccache_version_output "${ccache_version_output}")
+    string (REGEX MATCH "ccache\ version\ ([0-9])+(.([0-9])+)+\n" ccache_version_output "${ccache_version_output}")
     string (REGEX REPLACE "\n$" "" ccache_version_output "${ccache_version_output}")
     string (REPLACE "ccache\ version\ " "" ccache_version_output ${ccache_version_output})
     set (CCACHE_EXECUTABLE_VERSION ${ccache_version_output})
