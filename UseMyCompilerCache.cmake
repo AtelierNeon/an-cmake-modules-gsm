@@ -54,7 +54,7 @@ else ()
 
   message (STATUS "Detecting compiler cache - Ccache ${CCACHE_EXECUTABLE_VERSION} in ${CCACHE_EXECUTABLE_PATH}")
 
-  if (MSVC)
+  if (CMAKE_GENERATOR MATCHES "Visual Studio")
     file (COPY_FILE ${CCACHE_EXECUTABLE_PATH} ${CMAKE_BINARY_DIR}/cl.exe
         ONLY_IF_DIFFERENT)
     set (CMAKE_VS_GLOBALS
