@@ -1,7 +1,9 @@
 # This module is used to detect if there is a target MSVC runtime library on host machine.
 #
 # Currently MSVC v142 / v143 is supported.
-if (${CMAKE_GENERATOR_PLATFORM} MATCHES [[([A-Za-z0-9]+),version=([0-9\.]+)]])
+if (NOT CMAKE_GENERATOR_PLATFORM)
+  set (GENERATOR_PLATFORM_NAME ${CMAKE_C_COMPILER_ARCHITECTURE_ID})
+elseif (${CMAKE_GENERATOR_PLATFORM} MATCHES [[([A-Za-z0-9]+),version=([0-9\.]+)]])
   set (GENERATOR_PLATFORM_NAME ${CMAKE_MATCH_1})
 else ()
   set (GENERATOR_PLATFORM_NAME ${CMAKE_GENERATOR_PLATFORM})
@@ -136,11 +138,16 @@ if (MSVC)
       # 10.0.22621
       # CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION example:
       # 10.0.26100.0
-      message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - UCRT/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
+      if (CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION)
+        set (TARGET_PLATFORM_VERSION ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
+      else ()
+        set (TARGET_PLATFORM_VERSION $ENV{UCRTVersion})
+      endif ()
+      message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - UCRT/${TARGET_PLATFORM_VERSION}")
       if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
         file (GLOB _UCRT_REDIST_DEBUG_ROOTS
           LIST_DIRECTORIES TRUE
-          "C:/Program Files (x86)/Windows Kits/10/bin/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}"
+          "C:/Program Files (x86)/Windows Kits/10/bin/${TARGET_PLATFORM_VERSION}"
         )
         foreach (_UCRT_REDIST_DEBUG_ROOT ${_UCRT_REDIST_DEBUG_ROOTS})
           if (IS_DIRECTORY ${_UCRT_REDIST_DEBUG_ROOT})
@@ -150,7 +157,7 @@ if (MSVC)
       else ()
         file (GLOB _UCRT_REDIST_RELEASE_ROOTS
           LIST_DIRECTORIES TRUE
-          "C:/Program Files (x86)/Windows Kits/10/Redist/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}"
+          "C:/Program Files (x86)/Windows Kits/10/Redist/${TARGET_PLATFORM_VERSION}"
         )
         foreach (_UCRT_REDIST_RELEASE_ROOT ${_UCRT_REDIST_RELEASE_ROOTS})
           if (IS_DIRECTORY ${_UCRT_REDIST_RELEASE_ROOT})
@@ -160,7 +167,7 @@ if (MSVC)
       endif ()
 
       if (NOT _UCRT_REDIST_PATH)
-        message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - UCRT/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} - NOT FOUND")
+        message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - UCRT/${TARGET_PLATFORM_VERSION} - NOT FOUND")
       else ()
         # _UCRT_REDIST_FILE example:
         # C:/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x86/ucrt/ucrtbased.dll
@@ -176,7 +183,7 @@ if (MSVC)
             endif ()
           endif ()
         endforeach ()
-        message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - UCRT/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} - FOUND")
+        message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - UCRT/${TARGET_PLATFORM_VERSION} - FOUND")
 
         set (MSVCRUNTIME_FOUND TRUE)
         message (STATUS "Target MSVC runtime for ${GENERATOR_PLATFORM_NAME} - FOUND")
