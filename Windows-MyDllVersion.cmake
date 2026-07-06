@@ -1,6 +1,6 @@
 include (CMakeParseArguments)
 
-set (GenerateProductVersionCurrentDir ${CMAKE_CURRENT_LIST_DIR})
+set (GenerateProductDllVersionCurrentDir ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "Pin the directory of Windows-MyDllVersion.cmake")
 
 # generate_product_dll_version () function
 #
@@ -91,11 +91,11 @@ function (generate_product_dll_version outfiles)
     set (_VersionInfoFile ${CMAKE_CURRENT_BINARY_DIR}/rc.${_VersionDigest}/Windows-MyDllVersionInfo.h)
     set (_VersionResourceFile ${CMAKE_CURRENT_BINARY_DIR}/rc.${_VersionDigest}/Windows-MyDllVersionResource.rc)
     configure_file (
-        ${GenerateProductVersionCurrentDir}/Windows-MyDllVersionInfo.in
+        ${GenerateProductDllVersionCurrentDir}/Windows-MyDllVersionInfo.in
         ${_VersionInfoFile}
         @ONLY)
     configure_file (
-        ${GenerateProductVersionCurrentDir}/Windows-MyDllVersionResource.rc
+        ${GenerateProductDllVersionCurrentDir}/Windows-MyDllVersionResource.rc
         ${_VersionResourceFile}
         COPYONLY)
     list (APPEND ${outfiles} ${_VersionInfoFile} ${_VersionResourceFile})

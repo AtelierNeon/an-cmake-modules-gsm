@@ -1,6 +1,6 @@
 include (CMakeParseArguments)
 
-set (GenerateProductVersionCurrentDir ${CMAKE_CURRENT_LIST_DIR})
+set (GenerateProductExeVersionCurrentDir ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "Pin the directory of Windows-MyExeVersion.cmake")
 
 # generate_product_exe_version() function
 #
@@ -97,11 +97,11 @@ function (generate_product_exe_version outfiles)
     set (_VersionInfoFile ${CMAKE_CURRENT_BINARY_DIR}/rc.${_VersionDigest}/Windows-MyExeVersionInfo.h)
     set (_VersionResourceFile ${CMAKE_CURRENT_BINARY_DIR}/rc.${_VersionDigest}/Windows-MyExeVersionResource.rc)
     configure_file (
-        ${GenerateProductVersionCurrentDir}/Windows-MyExeVersionInfo.in
+        ${GenerateProductExeVersionCurrentDir}/Windows-MyExeVersionInfo.in
         ${_VersionInfoFile}
         @ONLY)
     configure_file (
-        ${GenerateProductVersionCurrentDir}/Windows-MyExeVersionResource.rc
+        ${GenerateProductExeVersionCurrentDir}/Windows-MyExeVersionResource.rc
         ${_VersionResourceFile}
         COPYONLY)
     list (APPEND ${outfiles} ${_VersionInfoFile} ${_VersionResourceFile})
